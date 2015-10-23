@@ -5,10 +5,11 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import com.unravel.amanda.unravel.ravelryapi.models.RavelApiResponse;
+import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -27,14 +28,16 @@ public class RavelryApi  {
     static String USER_SECRET;
     static final String BASE_URL = "https://api.ravelry.com/";
     static final String API_PROP_FILE = "api.properties";
+    static Gson _gson;
 
     final Context mContext;
 
-    public static final String PATTERN_SEARCH = "/patterns/search.json?query=";
     private HttpCallback _httpCallback;
-    private RavelApiResponse _ravelApiResponse;
     public RavelryApi(Context context)
     {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(RavelApiResponse.class, new RavelryDeserializer());
+        _gson = gsonBuilder.create();
         mContext = context;
         setApiKeys();
     }
@@ -53,21 +56,14 @@ public class RavelryApi  {
             e.printStackTrace();
         }
     }
-    public void processRequest(String queryString, HttpCallback callback) {
+    public void processRequest(RavelryApiRequest request, HttpCallback callback) {
         _httpCallback = callback;
-        new AsyncNetworkTasks().execute(queryString);
+        new AsyncNetworkTasks().execute(request);
     }
-
-    public RavelApiResponse getApiResponse()
-    {
-        return _ravelApiResponse;
-    }
-
 
     public Object getObject(String jsonString, Class mClass) {
         try {
-            Gson gson = new Gson();
-            Object object = gson.fromJson(jsonString, mClass);
+            Object object = _gson.fromJson(jsonString, mClass);
             return object;
         } catch(Exception ex) {
             Log.d("RavelryApi", ex.getLocalizedMessage());
@@ -79,16 +75,12 @@ public class RavelryApi  {
         return new String(Base64.encodeBase64(userPassword.getBytes()));
     }
 
-    public void setResponse(RavelApiResponse ravelApiResponse) {
-        _ravelApiResponse = ravelApiResponse;
-    }
-
-    private class AsyncNetworkTasks extends AsyncTask<String, Integer, Boolean>
+    private class AsyncNetworkTasks extends AsyncTask<RavelryApiRequest, Integer, Boolean>
     {
-        protected Boolean doInBackground(String... task)
+        protected Boolean doInBackground(RavelryApiRequest... task)
         {
             try {
-                URL url = new URL(BASE_URL+ PATTERN_SEARCH + task[0]);
+                URL url = new URL(BASE_URL + task[0].requestCommand + task[0].queryString);
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder().addHeader("Authorization", "Basic " + getBasicAuthenticationEncoding()).url(url).build();
                 Response response = client.newCall(request).execute();

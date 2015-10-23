@@ -29,12 +29,13 @@ import java.util.ArrayList;
  */
 public class PatternListAdapter extends BaseAdapter {
     private final static String TAG = "PatternListAdapter";
+    private final ArrayList<View> _patternViews;
     private Pattern[] _patterns;
     private LayoutInflater _inflater;
     private ImageLoader _imageLoader;
     private ImageLoaderConfiguration _config;
     private DisplayImageOptions _options;
-    public ArrayList<RelativeLayout> _selectedViews;
+    public ArrayList<View> _selectedViews;
     private Context _context;
 
     public PatternListAdapter(Context context, Pattern[] patterns)
@@ -47,6 +48,7 @@ public class PatternListAdapter extends BaseAdapter {
         ImageLoader.getInstance().init(_config);
         _imageLoader = ImageLoader.getInstance();
         _selectedViews = new ArrayList<>();
+        _patternViews = new ArrayList<>();
     }
 
     @Override
@@ -60,6 +62,9 @@ public class PatternListAdapter extends BaseAdapter {
         return _patterns[position];
     }
 
+    public View getItemView(int position){
+        return _patternViews.get(position);
+    }
     @Override
     public long getItemId(int position) {
         Log.d(TAG, "GetItemId - Position: " + position);
@@ -71,28 +76,16 @@ public class PatternListAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
         try {
             Pattern _currentPattern = _patterns[position];
-            if (convertView == null) {
+            if (convertView == null)
                 convertView = _inflater.inflate(R.layout.content_search_result, null);
-                convertView.setClickable(true);
-                holder = new ViewHolder();
-                Log.d(TAG, "Get View : " + _currentPattern.id + " - " + _currentPattern.first_photo.small_url);
-                holder.itemDescription = (TextView) convertView.findViewById(R.id.search_result_name);
-                holder.itemImage = (ImageView) convertView.findViewById(R.id.search_result_image);
-                holder.itemView = (RelativeLayout) convertView.findViewById(R.id.search_result_layout);
-                holder.pattern = _currentPattern;
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-            if(_currentPattern.first_photo_bitmap!=null)
-                holder.itemImage.setImageBitmap(_currentPattern.first_photo_bitmap);
-            else
-                getImageBitmap(_currentPattern, holder.itemImage);
 
-            holder.itemDescription.setText(_currentPattern.name);
-            convertView.setTag(holder);
+            TextView itemDescription = (TextView) convertView.findViewById(R.id.search_result_name);
+            ImageView itemImage = (ImageView) convertView.findViewById(R.id.search_result_image);
+
+            itemDescription.setText(_currentPattern.name);
+            convertView.setTag(_currentPattern.id);
         } catch (Exception e) {
             e.printStackTrace();
         }

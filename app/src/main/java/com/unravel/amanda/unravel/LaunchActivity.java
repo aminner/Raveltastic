@@ -93,31 +93,4 @@ public class LaunchActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-//    @Override
-//    public void ExecuteSearch(String query) {
-//        _api.processRequest(query, new HttpCallback() {
-//            @Override
-//            public void onSuccess(final String jsonString) {
-//                _activity.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Gson gson = new Gson();
-//                        RavelApiResponse response = gson.fromJson(jsonString, RavelApiResponse.class);
-//                        _searchResultsFragment.setSearchResponse(response);
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onFailure(final Exception exception) {
-//                _activity.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        //_searchResults.setText(exception.getMessage().toString());
-//                    }
-//                });
-//            }
-//        });
-//    }
 }

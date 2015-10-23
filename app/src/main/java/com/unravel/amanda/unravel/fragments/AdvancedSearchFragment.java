@@ -1,14 +1,19 @@
 package com.unravel.amanda.unravel.fragments;
 
-import android.app.Activity;
+import android.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.unravel.amanda.unravel.R;
+import com.unravel.amanda.unravel.ravelryapi.HttpCallback;
+import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
+import com.unravel.amanda.unravel.ravelryapi.RavelryApiCalls;
+import com.unravel.amanda.unravel.ravelryapi.RavelryApiRequest;
+import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -19,6 +24,7 @@ import com.unravel.amanda.unravel.R;
  * create an instance of this fragment.
  */
 public class AdvancedSearchFragment extends Fragment {
+    RavelryApi _ravelryApi;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -55,10 +61,16 @@ public class AdvancedSearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        _ravelryApi = new RavelryApi(getActivity());
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+    }
+    @Override
+    public void onViewCreated (View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setColorOptions();
     }
 
     @Override
@@ -68,22 +80,18 @@ public class AdvancedSearchFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_advanced, container, false);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+    private void setColorOptions() {
+        _ravelryApi.processRequest(new RavelryApiRequest("", RavelryApiCalls.COLOR_FAMILIES), new HttpCallback() {
+            @Override
+            public void onSuccess(RavelApiResponse jsonString) {
+                Log.d("Advanced", "Received response");
+            }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+            @Override
+            public void onFailure(Exception exception) {
+
+            }
+        });
     }
 
     @Override

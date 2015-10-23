@@ -1,13 +1,9 @@
 package com.unravel.amanda.unravel.ravelryapi.models;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
-import java.io.InputStream;
 import java.util.Date;
 
 /**
@@ -66,6 +62,7 @@ public class Pattern implements Parcelable {
     public YarnWeight [] yarn_weight;
     public String	yarn_weight_description;
     public Bitmap first_photo_bitmap;
+    private boolean selected;
 
 
     protected Pattern(Parcel in) {
@@ -138,5 +135,15 @@ public class Pattern implements Parcelable {
         dest.writeString(yardage_description);
         dest.writeString(yarn_weight_description);
         dest.writeParcelable(first_photo_bitmap, flags);
+        selected =false;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected)
+    {
+        this.selected = selected;
     }
 }
