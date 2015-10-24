@@ -26,8 +26,9 @@ import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
 import java.util.List;
 
-public class SearchResultsFragment extends Fragment {
-    private final static String TAG = "SearchResultsFragment";
+public class SearchFragment extends Fragment {
+    private final static String TAG = "SearchFragment";
+    private boolean isAdvancedSearch = false;
     private RecyclerView _searchResults;
     private PatternRVAdapter _patternListAdapter;
     private BasicSearchFragment _baseSearchFragment;
@@ -37,33 +38,51 @@ public class SearchResultsFragment extends Fragment {
     private RavelApiResponse searchResponse;
     private EditText _searchQuery;
     private Button _searchButton;
-    public static SearchResultsFragment newInstance() {
-        SearchResultsFragment fragment = new SearchResultsFragment();
+    private SearchResultFragment _resultFragment;
+    private AdvancedSearchFragment _advancedSearchFragment;
+
+    public static SearchFragment newInstance() {
+        SearchFragment fragment = new SearchFragment();
         return fragment;
     }
 
-    public SearchResultsFragment() { }
+    public SearchFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
     }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.removeItem(R.id.action_settings);
-        _searchAdvanced = menu.add("Advanced");
-        _searchBasic = menu.add("Quick");
+        _searchAdvanced = menu.add(R.string.search_menu_advanced);
+        _searchBasic = menu.add(R.string.search_menu_basic);
     }
+
+    @Override
+    public boolean onOptionsItemSelected (MenuItem item) {
+        if(_advancedSearchFragment == null)
+            _advancedSearchFragment =  AdvancedSearchFragment.newInstance();
+        if (item.getTitle().toString().equals("Advanced")) {
+            getFragmentManager().beginTransaction().replace(R.id.search_content, _advancedSearchFragment).addToBackStack("Results").commit();
+            isAdvancedSearch = true;
+        } else if (item.getTitle().equals("Quick")) {
+            getFragmentManager().beginTransaction().replace(R.id.search_content, _resultFragment).addToBackStack("Advanced").commit();
+            isAdvancedSearch = false;
+        }
+        return false;
+    }
+
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
         _api = new RavelryApi(getActivity());
         _baseSearchFragment = (BasicSearchFragment) getActivity().getFragmentManager().findFragmentById(R.id.searchDetailsFragment);
-//        _searchResults = (ListView) getActivity().findViewById(R.id.searchResults);
-//        _searchResults.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         _searchButton = (Button) getActivity().findViewById(R.id.searchButton);
         _searchQuery = (EditText) getActivity().findViewById(R.id.searchQuery);
+        _resultFragment = (SearchResultFragment) getActivity().getFragmentManager().findFragmentById(R.id.search_content);
         Button _clearSearchQuery = (Button) getActivity().findViewById(R.id.clearSearchButton);
         _clearSearchQuery.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +97,10 @@ public class SearchResultsFragment extends Fragment {
                         getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
                 inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
                         InputMethodManager.HIDE_NOT_ALWAYS);
+                if(isAdvancedSearch)
+                {
+                    getActivity().getFragmentManager().beginTransaction().hide(_advancedSearchFragment).commit();
+                }
                 _api.processRequest(new RavelryApiRequest(_searchQuery.getText().toString(), RavelryApiCalls.PATTERN_SEARCH), new HttpCallback() {
                     @Override
                     public void onSuccess(RavelApiResponse response) {

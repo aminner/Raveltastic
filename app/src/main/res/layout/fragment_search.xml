@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.unravel.amanda.unravel.fragments.SearchResultsFragment">
+    tools:context="com.unravel.amanda.unravel.fragments.SearchFragment">
 
     <fragment
         android:layout_width="wrap_content"
@@ -10,13 +10,17 @@
         android:id="@+id/searchDetailsFragment"
         android:layout_alignParentEnd="false"
         android:layout_alignParentStart="false"
-        tools:layout="@layout/fragment_basic_search" />
+        tools:layout="@layout/fragment_basic_search"
+        android:layout_marginBottom="15dp" />
 
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/rv"
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.unravel.amanda.unravel.fragments.SearchResultFragment"
+        android:id="@+id/search_content"
+        android:layout_gravity="center_horizontal|top"
         android:layout_below="@+id/searchDetailsFragment"
-        />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

@@ -12,14 +12,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import com.unravel.amanda.unravel.fragments.SearchResultsFragment;
+
+import com.unravel.amanda.unravel.fragments.SearchFragment;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 
 public class LaunchActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
     private RavelryApi _api;
     private Activity _activity;
-    private SearchResultsFragment _searchResultsFragment;
+    private SearchFragment _searchFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,9 +84,9 @@ public class LaunchActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_pattern) {
-            _searchResultsFragment = SearchResultsFragment.newInstance();
+            _searchFragment = SearchFragment.newInstance();
             FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content, _searchResultsFragment).commit();
+            fragmentManager.beginTransaction().replace(R.id.content, _searchFragment).commit();
         }
 
         // Highlight the selected item, update the title, and close the drawer

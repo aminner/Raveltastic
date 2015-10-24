@@ -1,13 +1,12 @@
 package com.unravel.amanda.unravel.ravelryapi;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.unravel.amanda.unravel.ravelryapi.models.ColorFamily;
 import com.unravel.amanda.unravel.ravelryapi.models.Paginator;
 import com.unravel.amanda.unravel.ravelryapi.models.Pattern;
 import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
@@ -35,19 +34,17 @@ public class RavelryDeserializer implements JsonDeserializer<RavelApiResponse> {
         Iterator iterator = obj.entrySet().iterator();
         Map.Entry<String, JsonElement> entry = (Map.Entry<String, JsonElement>) iterator.next();
 
-        Paginator page = _gson.fromJson(entry.getValue(), Paginator.class);
+        List<Object> responses = new ArrayList<Object>();
+        Paginator page = null; //= _gson.fromJson(entry.getValue(), Paginator.class);
         if(entry.getKey().equals("paginator"))
             page = _gson.fromJson(entry.getValue(), Paginator.class);
+        else if(entry.getKey().equals("color_families"))
+            responses = Arrays.asList((Object[]) _gson.fromJson(entry.getValue(), ColorFamily[].class));
 
-        List<Object> responses = new ArrayList<Object>();
-        try {
+        if(entry.getKey().equals("paginator")) {
             entry = (Map.Entry<String, JsonElement>) iterator.next();
             if (entry.getKey().equals("patterns"))
-                responses = Arrays.asList((Object[])_gson.fromJson(entry.getValue(), Pattern[].class));
-        }
-        catch(Exception ex)
-        {
-            Log.d("Deserializer", ex.getMessage());
+                responses = Arrays.asList((Object[]) _gson.fromJson(entry.getValue(), Pattern[].class));
         }
         return new RavelApiResponse(page, responses);
     }

@@ -61,9 +61,9 @@ public class RavelryApi  {
         new AsyncNetworkTasks().execute(request);
     }
 
-    public Object getObject(String jsonString, Class mClass) {
+    public RavelApiResponse getObject(String jsonString, Class mClass) {
         try {
-            Object object = _gson.fromJson(jsonString, mClass);
+            RavelApiResponse object = (RavelApiResponse)_gson.fromJson(jsonString, mClass);
             return object;
         } catch(Exception ex) {
             Log.d("RavelryApi", ex.getLocalizedMessage());
@@ -84,7 +84,7 @@ public class RavelryApi  {
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder().addHeader("Authorization", "Basic " + getBasicAuthenticationEncoding()).url(url).build();
                 Response response = client.newCall(request).execute();
-                _httpCallback.onSuccess((RavelApiResponse) getObject(response.body().string(), RavelApiResponse.class));
+                _httpCallback.onSuccess(getObject(response.body().string(), RavelApiResponse.class));
             }
             catch(Exception e) {
                 e.printStackTrace();

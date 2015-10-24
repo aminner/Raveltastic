@@ -13,4 +13,7 @@
     <string name="search_hint_text">What are you looking for?</string>
     <string name="image">Image</string>
     <string name="X_Icon">X</string>
+    <string name="search_menu_advanced">Advanced</string>
+    <string name="search_menu_basic">Quick</string>
+    <string name="search_advanced_color">Color</string>
 </resources>
