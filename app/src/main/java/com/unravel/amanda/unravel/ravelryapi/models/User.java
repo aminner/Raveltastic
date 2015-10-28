@@ -9,7 +9,7 @@ public class User {
     public String fave_colors;
     public String fave_curse;
     public String first_name;
-    public String id;
+    public Integer id;
     public String large_phot_url;
     public String location;
     public PatternAuthor patternAuthor;

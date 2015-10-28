@@ -46,7 +46,10 @@ public class SearchResultFragment extends Fragment {
     public SearchResultFragment() {
         // Required empty public constructor
     }
-
+    @Override
+       public void onViewCreated (View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

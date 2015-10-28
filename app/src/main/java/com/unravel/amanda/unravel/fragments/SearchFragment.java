@@ -17,6 +17,7 @@ import android.widget.EditText;
 
 import com.unravel.amanda.unravel.PatternRVAdapter;
 import com.unravel.amanda.unravel.R;
+import com.unravel.amanda.unravel.SearchRecyclerViewItemDecorator;
 import com.unravel.amanda.unravel.ravelryapi.HttpCallback;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApiCalls;
@@ -101,7 +102,7 @@ public class SearchFragment extends Fragment {
                 {
                     getActivity().getFragmentManager().beginTransaction().hide(_advancedSearchFragment).commit();
                 }
-                _api.processRequest(new RavelryApiRequest(_searchQuery.getText().toString(), RavelryApiCalls.PATTERN_SEARCH), new HttpCallback() {
+                RavelryApi.processRequest(new RavelryApiRequest(_searchQuery.getText().toString(), RavelryApiCalls.PATTERN_SEARCH), new HttpCallback() {
                     @Override
                     public void onSuccess(RavelApiResponse response) {
                         setSearchResponse(response);
@@ -115,9 +116,11 @@ public class SearchFragment extends Fragment {
             }
         });
 
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+
         _searchResults = (RecyclerView)getActivity().findViewById(R.id.rv);
         _searchResults.setHasFixedSize(true);
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        _searchResults.addItemDecoration(new SearchRecyclerViewItemDecorator(5));
         _searchResults.setLayoutManager(llm);
         _searchResults.setAdapter(_patternListAdapter);
     }
@@ -136,7 +139,7 @@ public class SearchFragment extends Fragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    _searchResults.setAdapter(_patternListAdapter);
+                _searchResults.setAdapter(_patternListAdapter);
                 }
             });
         }

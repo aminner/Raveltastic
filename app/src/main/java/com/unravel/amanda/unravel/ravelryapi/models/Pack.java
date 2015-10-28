@@ -8,12 +8,12 @@ public class Pack {
     public String colorway;
     public String dye_lot;
     public String grams_per_skein;
-    public String id;
+    public Integer id;
     public String meters_per_skein;
     public String ounces_per_skein;
     public String personal_name;
-    public String prefer_metric_length;
-    public String prefer_metric_weight;
+    public boolean prefer_metric_length;
+    public boolean prefer_metric_weight;
     public String primary_pack_id;
     public Integer project_id;
     public String quantity_description;
@@ -27,4 +27,7 @@ public class Pack {
     public String total_yards;
     public String yards_per_skein;
     public Integer yarn_id;
+    public String yarn_name;
+    public YarnWeight yarn_weight;
+    public Yarn yarn;
 }

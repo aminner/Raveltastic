@@ -32,7 +32,7 @@ public class RavelryApi  {
 
     final Context mContext;
 
-    private HttpCallback _httpCallback;
+    private static HttpCallback _httpCallback;
     public RavelryApi(Context context)
     {
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -56,12 +56,12 @@ public class RavelryApi  {
             e.printStackTrace();
         }
     }
-    public void processRequest(RavelryApiRequest request, HttpCallback callback) {
+    public static void processRequest(RavelryApiRequest request, HttpCallback callback) {
         _httpCallback = callback;
         new AsyncNetworkTasks().execute(request);
     }
 
-    public RavelApiResponse getObject(String jsonString, Class mClass) {
+    public static RavelApiResponse getObject(String jsonString, Class mClass) {
         try {
             RavelApiResponse object = (RavelApiResponse)_gson.fromJson(jsonString, mClass);
             return object;
@@ -70,12 +70,12 @@ public class RavelryApi  {
             return null;
         }
     }
-    private String getBasicAuthenticationEncoding() {
+    private static String getBasicAuthenticationEncoding() {
         String userPassword = ACCESS_KEY + ":" + USER_SECRET;
         return new String(Base64.encodeBase64(userPassword.getBytes()));
     }
 
-    private class AsyncNetworkTasks extends AsyncTask<RavelryApiRequest, Integer, Boolean>
+    private static class AsyncNetworkTasks extends AsyncTask<RavelryApiRequest, Integer, Boolean>
     {
         protected Boolean doInBackground(RavelryApiRequest... task)
         {
