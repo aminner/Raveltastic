@@ -26,8 +26,8 @@ public class PackFull {
     public String total_ounces;//CHECK
     public String total_yards;//CHECK
     public String yards_per_skein;//CHECK
-    public String yarn;//CHECK
+    public Yarn yarn;//CHECK
     public Integer yarn_id;//CHECK
     public String yarn_name;//CHECK
-    public String yarn_weight;//CHECK
+    public YarnWeight yarn_weight;//CHECK
 }

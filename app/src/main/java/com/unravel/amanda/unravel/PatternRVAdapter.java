@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,23 +26,21 @@ import com.unravel.amanda.unravel.ravelryapi.models.Pattern;
 import com.unravel.amanda.unravel.ravelryapi.models.PatternFull;
 import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Amanda on 10/19/2015.
  */
 public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.PatternViewHolder>{
+    private static final String TAG = "PatternRVAdapter";
     private List<Pattern> patterns;
     private DisplayImageOptions _options;
     private ImageLoaderConfiguration _config;
     private ImageLoader _imageLoader;
-    private List<Pattern> _selectedPatterns;
     private View.OnClickListener _viewOncClickListener;
 
     public PatternRVAdapter(List<Pattern> patterns) {
         this.patterns = patterns;
-        _selectedPatterns =new ArrayList<Pattern>();
     }
 
     public void setOnClickListener(View.OnClickListener onClickListener)
@@ -77,11 +76,53 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
         }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 RavelryApi.processRequest(new RavelryApiRequest("", RavelryApiCalls.GET_PATTERN.replace("$", _currentPattern.id.toString())), new HttpCallback() {
                     @Override
                     public void onSuccess(RavelApiResponse jsonString) {
-                        PatternFull pattern = (PatternFull)jsonString.responses.get(0);
+                        final PatternFull pattern = (PatternFull)jsonString.responses.get(0);
+
+                        try {
+                            ((Activity)v.getContext()).runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    View view = ((Activity) v.getContext()).getLayoutInflater().inflate(R.layout.pattern_detail_layout, null);
+
+                                    final Dialog settingsDialog = new Dialog(v.getContext());
+                                    settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+                                    ImageView imgView = (ImageView) view.findViewById(R.id.pattern_image);
+                                    imgView.setImageBitmap(_currentPattern.first_photo_bitmap);
+
+                                    TextView textView = (TextView) view.findViewById(R.id.pattern_title);
+                                    textView.setText(pattern.name);
+
+                                    if (pattern.designer != null) {
+                                        TextView tv_author = (TextView) view.findViewById(R.id.pattern_author);
+                                        tv_author.setText(pattern.designer.name);
+                                    }
+                                    else if(pattern.pattern_author!=null)
+                                    {
+                                        TextView tv_author = (TextView) view.findViewById(R.id.pattern_author);
+                                        tv_author.setText(pattern.pattern_author.name);
+                                    }
+
+                            TextView tv_favorites = (TextView) view.findViewById(R.id.favorite_count);
+                            tv_favorites.setText("Favorites: " + pattern.favorites_count);
+
+                            TextView tv_projects = (TextView) view.findViewById(R.id.project_count);
+                            tv_projects.setText("Projects: " + pattern.projects_count);
+
+                            settingsDialog.setContentView(view);
+                            settingsDialog.show();
+
+                                }
+                            });
+                        }
+                        catch(Exception ex)
+                        {
+                            Log.d(TAG, ex.getMessage());
+                        }
                     }
 
                     @Override

@@ -6,9 +6,9 @@ package com.unravel.amanda.unravel.ravelryapi.models;
 public class NeedleSizes {
     public String hook;//CHECK
     public String pretty_metric;//CHECK
-    public boolean crochet;//CHECK
+    public Boolean crochet;//CHECK
     public String us_steel;//CHECK
-    public boolean knitting;//CHECK
+    public Boolean knitting;//CHECK
     public Float metric;//CHECK
     public String name;//CHECK
     public Integer id;//CHECK

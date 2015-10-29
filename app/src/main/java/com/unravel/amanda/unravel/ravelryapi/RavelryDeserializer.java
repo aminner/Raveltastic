@@ -53,8 +53,8 @@ public class RavelryDeserializer implements JsonDeserializer<RavelApiResponse> {
                     responses = Arrays.asList((Object[]) _gson.fromJson(entry.getValue(), Pattern[].class));
             }
             return new RavelApiResponse(page, responses);
-        }catch(Exception ex){
-            Log.d(TAG, ex.getMessage());
+        } catch(Exception ex){
+            Log.d(TAG, Log.getStackTraceString(ex));
 
         }
         return null;

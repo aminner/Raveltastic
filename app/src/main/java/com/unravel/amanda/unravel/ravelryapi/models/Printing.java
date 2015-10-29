@@ -5,7 +5,7 @@ package com.unravel.amanda.unravel.ravelryapi.models;
  */
 public class Printing {
     public PatternSource pattern_source;//CHECK
-    public boolean primary_source;
+    public Boolean primary_source;
 //    public String pattern_source;
 //    public String primary_source;
 }

@@ -10,7 +10,7 @@ public class User {
     public String fave_curse;
     public String first_name;
     public Integer id;
-    public String large_phot_url;
+    public String large_photo_url;
     public String location;
     public PatternAuthor patternAuthor;
     public String photo_url;

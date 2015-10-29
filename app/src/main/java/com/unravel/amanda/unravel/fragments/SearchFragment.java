@@ -143,8 +143,9 @@ public class SearchFragment extends Fragment {
                 }
             });
         }
-        else
-        _patternListAdapter.setItems((List<Pattern>)(Object)searchResponse.responses);
+        else {
+            _patternListAdapter.setItems((List<Pattern>) (Object) searchResponse.responses);
+        }
         _patternListAdapter.notifyDataSetChanged();
     }
 }
