@@ -1,6 +1,7 @@
 package com.unravel.amanda.unravel.fragments;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,7 +13,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 
 import com.unravel.amanda.unravel.PatternRVAdapter;
@@ -27,18 +27,23 @@ import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class SearchFragment extends Fragment {
     private final static String TAG = "SearchFragment";
     private boolean isAdvancedSearch = false;
-    private RecyclerView _searchResults;
     private PatternRVAdapter _patternListAdapter;
     private BasicSearchFragment _baseSearchFragment;
     private RavelryApi _api;
     private MenuItem _searchAdvanced;
     private MenuItem _searchBasic;
     private RavelApiResponse searchResponse;
-    private EditText _searchQuery;
-    private Button _searchButton;
+
+    @BindView(R.id.rv) RecyclerView _searchResults;
+    @BindView(R.id.searchQuery) private EditText _searchQuery;
+
     private SearchResultFragment _resultFragment;
     private AdvancedSearchFragment _advancedSearchFragment;
 
@@ -79,50 +84,43 @@ public class SearchFragment extends Fragment {
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
+        ButterKnife.bind(getActivity(), view);
         _api = new RavelryApi(getActivity());
         _baseSearchFragment = (BasicSearchFragment) getActivity().getFragmentManager().findFragmentById(R.id.searchDetailsFragment);
-        _searchButton = (Button) getActivity().findViewById(R.id.searchButton);
-        _searchQuery = (EditText) getActivity().findViewById(R.id.searchQuery);
         _resultFragment = (SearchResultFragment) getActivity().getFragmentManager().findFragmentById(R.id.search_content);
-        Button _clearSearchQuery = (Button) getActivity().findViewById(R.id.clearSearchButton);
-        _clearSearchQuery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                _searchQuery.setText("");
-            }
-        });
-        _searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                InputMethodManager inputManager = (InputMethodManager)
-                        getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
-                        InputMethodManager.HIDE_NOT_ALWAYS);
-                if(isAdvancedSearch)
-                {
-                    getActivity().getFragmentManager().beginTransaction().hide(_advancedSearchFragment).commit();
-                }
-                RavelryApi.processRequest(new RavelryApiRequest(_searchQuery.getText().toString(), RavelryApiCalls.PATTERN_SEARCH), new HttpCallback() {
-                    @Override
-                    public void onSuccess(RavelApiResponse response) {
-                        setSearchResponse(response);
-                    }
-
-                    @Override
-                    public void onFailure(Exception exception) {
-                        Log.d(TAG, "Error: " + exception.getMessage());
-                    }
-                });
-            }
-        });
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
 
-        _searchResults = (RecyclerView)getActivity().findViewById(R.id.rv);
         _searchResults.setHasFixedSize(true);
         _searchResults.addItemDecoration(new SearchRecyclerViewItemDecorator(5));
         _searchResults.setLayoutManager(llm);
         _searchResults.setAdapter(_patternListAdapter);
+    }
+    @OnClick(R.id.searchButton)
+    public void performSearch() {
+        InputMethodManager inputManager = (InputMethodManager)
+                getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+        if (isAdvancedSearch) {
+            getActivity().getFragmentManager().beginTransaction().hide(_advancedSearchFragment).commit();
+        }
+        new RavelryApi(getActivity()).processRequest(new RavelryApiRequest(_searchQuery.getText().toString(), RavelryApiCalls.PATTERN_SEARCH), new HttpCallback() {
+            @Override
+            public void onSuccess(RavelApiResponse response) {
+                setSearchResponse(response);
+            }
+
+            @Override
+            public void onFailure(Throwable exception) {
+                Log.d(TAG, "Error: " + exception.getMessage());
+            }
+        });
+    }
+
+    @OnClick(R.id.clearSearchButton)
+    public void clearSearch() {
+        _searchQuery.setText("");
     }
 
     @Override
@@ -134,18 +132,19 @@ public class SearchFragment extends Fragment {
 
     public void setSearchResponse(RavelApiResponse searchResponse) {
         this.searchResponse = searchResponse;
-        if(_patternListAdapter == null) {
-            _patternListAdapter = new PatternRVAdapter((List<Pattern>)(Object)searchResponse.responses);
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                _searchResults.setAdapter(_patternListAdapter);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (_patternListAdapter == null) {
+                    _patternListAdapter = new PatternRVAdapter((List<Pattern>) (Object) searchResponse.responses);
+
+                    _searchResults.setAdapter(_patternListAdapter);
+
+                } else {
+                    _patternListAdapter.setItems((List<Pattern>) (Object) searchResponse.responses);
                 }
-            });
-        }
-        else {
-            _patternListAdapter.setItems((List<Pattern>) (Object) searchResponse.responses);
-        }
-        _patternListAdapter.notifyDataSetChanged();
+                _patternListAdapter.notifyDataSetChanged();
+            }
+        });
     }
 }

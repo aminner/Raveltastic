@@ -1,2 +1,9 @@
 /build
 /src/main/assets/*
+.idea/.name
+.idea/inspectionProfiles/
+gradle/
+gradlew
+gradlew.bat
+local.properties
+src/main/assets/

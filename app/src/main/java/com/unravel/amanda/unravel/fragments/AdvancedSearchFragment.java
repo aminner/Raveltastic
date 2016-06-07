@@ -102,7 +102,7 @@ public class AdvancedSearchFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Exception exception) {
+            public void onFailure(Throwable exception) {
 
             }
         });

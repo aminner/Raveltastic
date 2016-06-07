@@ -18,9 +18,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
-/**
- * Created by Amanda on 8/16/2015.
- */
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 public class RavelryApi  {
     static String ACCESS_KEY;
     static String ACCESS_SECRET;
@@ -33,13 +37,28 @@ public class RavelryApi  {
     final Context mContext;
 
     private static HttpCallback _httpCallback;
+    private Retrofit retrofit;
+    private RavelApiService _apiService;
+
     public RavelryApi(Context context)
     {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(RavelApiResponse.class, new RavelryDeserializer());
         _gson = gsonBuilder.create();
+        setUpRavelApiService();
         mContext = context;
         setApiKeys();
+    }
+
+    private void setUpRavelApiService()
+    {
+        retrofit = new Retrofit.Builder()
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl(BASE_URL)
+                .build();
+
+        _apiService = retrofit.create(RavelApiService.class);
     }
 
     private void setApiKeys() {
@@ -56,9 +75,13 @@ public class RavelryApi  {
             e.printStackTrace();
         }
     }
-    public static void processRequest(RavelryApiRequest request, HttpCallback callback) {
-        _httpCallback = callback;
-        new AsyncNetworkTasks().execute(request);
+
+    public void processRequest(RavelryApiRequest request, HttpCallback callback) {
+        Observable<RavelApiResponse> requestCallback = _apiService.getPatterns(request.queryString);
+        requestCallback.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnError(callback::onFailure)
+                .subscribe(callback::onSuccess);
     }
 
     public static RavelApiResponse getObject(String jsonString, Class mClass) {

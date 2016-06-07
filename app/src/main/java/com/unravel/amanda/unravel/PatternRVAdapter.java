@@ -77,7 +77,7 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                RavelryApi.processRequest(new RavelryApiRequest("", RavelryApiCalls.GET_PATTERN.replace("$", _currentPattern.id.toString())), new HttpCallback() {
+                new RavelryApi(v.getContext()).processRequest(new RavelryApiRequest("", RavelryApiCalls.GET_PATTERN.replace("$", _currentPattern.id.toString())), new HttpCallback() {
                     @Override
                     public void onSuccess(RavelApiResponse jsonString) {
                         final PatternFull pattern = (PatternFull)jsonString.responses.get(0);
@@ -86,7 +86,6 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
                             ((Activity)v.getContext()).runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-
                                     View view = ((Activity) v.getContext()).getLayoutInflater().inflate(R.layout.pattern_detail_layout, null);
 
                                     final Dialog settingsDialog = new Dialog(v.getContext());
@@ -126,7 +125,7 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
                     }
 
                     @Override
-                    public void onFailure(Exception exception) {
+                    public void onFailure(Throwable exception) {
 
                     }
                 });
@@ -201,7 +200,7 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
             cardView = (CardView)itemView.findViewById(R.id.search_card_view);
             title = (TextView) itemView.findViewById(R.id.search_result_name);
             image = (ImageView) itemView.findViewById(R.id.search_result_image);
-            patternType = (TextView) itemView.findViewById(R.id.search_result_pattern_type);
+//            patternType = (TextView) itemView.findViewById(R.id.search_result_pattern_type);
             patternCost = (TextView) itemView.findViewById(R.id.search_result_pattern_cost);
         }
     }
