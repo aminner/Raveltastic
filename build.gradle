@@ -5,11 +5,13 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.1.2'
         classpath 'me.tatarka:gradle-retrolambda:3.2.5'
     }
 }
-
+plugins {
+    id "me.tatarka.retrolambda" version "3.2.5"
+}
 allprojects {
     repositories {
         jcenter()

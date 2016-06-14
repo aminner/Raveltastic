@@ -48,8 +48,7 @@ public class SearchFragment extends Fragment {
     private AdvancedSearchFragment _advancedSearchFragment;
 
     public static SearchFragment newInstance() {
-        SearchFragment fragment = new SearchFragment();
-        return fragment;
+        return new SearchFragment();
     }
 
     public SearchFragment() { }
@@ -89,12 +88,12 @@ public class SearchFragment extends Fragment {
         _baseSearchFragment = (BasicSearchFragment) getActivity().getFragmentManager().findFragmentById(R.id.searchDetailsFragment);
         _resultFragment = (SearchResultFragment) getActivity().getFragmentManager().findFragmentById(R.id.search_content);
 
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
-
-        _searchResults.setHasFixedSize(true);
-        _searchResults.addItemDecoration(new SearchRecyclerViewItemDecorator(5));
-        _searchResults.setLayoutManager(llm);
-        _searchResults.setAdapter(_patternListAdapter);
+        if(_searchResults !=null) {
+            _searchResults.setHasFixedSize(true);
+            _searchResults.addItemDecoration(new SearchRecyclerViewItemDecorator(5));
+            _searchResults.setLayoutManager(new LinearLayoutManager(getActivity()));
+            _searchResults.setAdapter(_patternListAdapter);
+        }
     }
     @OnClick(R.id.searchButton)
     public void performSearch() {
@@ -137,7 +136,6 @@ public class SearchFragment extends Fragment {
             public void run() {
                 if (_patternListAdapter == null) {
                     _patternListAdapter = new PatternRVAdapter((List<Pattern>) (Object) searchResponse.responses);
-
                     _searchResults.setAdapter(_patternListAdapter);
 
                 } else {
