@@ -16,17 +16,19 @@ import android.view.MenuItem;
 import com.unravel.amanda.unravel.fragments.SearchFragment;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 
+import javax.inject.Inject;
+
 public class LaunchActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
-    private RavelryApi _api;
+    @Inject  RavelryApi _api;
     private Activity _activity;
     private SearchFragment _searchFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((RavelApplication)getApplication()).getComponent().inject(this);
         _activity = this;
-        _api = new RavelryApi(this);
         setContentView(R.layout.activity_launch);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

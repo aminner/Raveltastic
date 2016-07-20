@@ -10,6 +10,7 @@ import android.widget.GridLayout;
 import android.widget.TextView;
 
 import com.unravel.amanda.unravel.R;
+import com.unravel.amanda.unravel.RavelApplication;
 import com.unravel.amanda.unravel.ravelryapi.HttpCallback;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApiCalls;
@@ -20,7 +21,10 @@ import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class AdvancedSearchFragment extends Fragment {
+    @Inject
     RavelryApi _ravelryApi;
 
     public static AdvancedSearchFragment newInstance() {
@@ -34,7 +38,7 @@ public class AdvancedSearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        _ravelryApi = new RavelryApi(getActivity());
+        ((RavelApplication)getActivity().getApplication()).getComponent().inject(this);
     }
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
@@ -42,16 +46,13 @@ public class AdvancedSearchFragment extends Fragment {
         final View _layout =  getActivity().findViewById(R.id.color_choice_layout);
         final GridLayout _expandView = (GridLayout) getActivity().findViewById(R.id.color_selection_grid);
         final TextView _expand = (TextView) getActivity().findViewById(R.id.color_expand);
-        _layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (_expandView.getVisibility() == View.GONE) {
-                    _expandView.setVisibility(View.VISIBLE);
-                    _expand.setText("-");
-                } else {
-                    _expandView.setVisibility(View.GONE);
-                    _expand.setText("+");
-                }
+        _layout.setOnClickListener(v -> {
+            if (_expandView.getVisibility() == View.GONE) {
+                _expandView.setVisibility(View.VISIBLE);
+                _expand.setText("-");
+            } else {
+                _expandView.setVisibility(View.GONE);
+                _expand.setText("+");
             }
         });
 

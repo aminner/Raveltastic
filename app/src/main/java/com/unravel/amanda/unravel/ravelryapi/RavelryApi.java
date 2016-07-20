@@ -1,120 +1,45 @@
 package com.unravel.amanda.unravel.ravelryapi;
 
-import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import com.unravel.amanda.unravel.RavelApplication;
 import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
-import org.apache.commons.codec.binary.Base64;
+import javax.inject.Inject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Properties;
-
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
-import rx.Observable;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class RavelryApi  {
-    static String ACCESS_KEY;
-    static String ACCESS_SECRET;
-    static String USER_ID;
-    static String USER_SECRET;
-    static final String BASE_URL = "https://api.ravelry.com/";
-    static final String API_PROP_FILE = "api.properties";
-    static Gson _gson;
+    private static final String TAG = "RavelryApi";
 
-    final Context mContext;
+    @Inject RavelApiService _apiService;
 
-    private static HttpCallback _httpCallback;
-    private Retrofit retrofit;
-    private RavelApiService _apiService;
-
-    public RavelryApi(Context context)
-    {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(RavelApiResponse.class, new RavelryDeserializer());
-        _gson = gsonBuilder.create();
-        setUpRavelApiService();
-        mContext = context;
-        setApiKeys();
-    }
-
-    private void setUpRavelApiService()
-    {
-        retrofit = new Retrofit.Builder()
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl(BASE_URL)
-                .build();
-
-        _apiService = retrofit.create(RavelApiService.class);
-    }
-
-    private void setApiKeys() {
-        Properties prop = new Properties();
-        try {
-            InputStream input = mContext.getAssets().open(API_PROP_FILE);
-            if(input != null)
-                prop.load(input);
-            ACCESS_KEY = prop.getProperty("ACCESS_KEY");
-            ACCESS_SECRET = prop.getProperty("ACCESS_SECRET");
-            USER_ID = prop.getProperty("USER_ID");
-            USER_SECRET = prop.getProperty("USER_SECRET");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public RavelryApi()   {
+        RavelApplication.getComponent().inject(this);
     }
 
     public void processRequest(RavelryApiRequest request, HttpCallback callback) {
-        Observable<RavelApiResponse> requestCallback = _apiService.getPatterns(request.queryString);
-        requestCallback.subscribeOn(Schedulers.newThread())
+        _apiService.getPatterns(request.queryString)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnError(callback::onFailure)
-                .subscribe(callback::onSuccess);
-    }
+                .subscribe(new Subscriber<RavelApiResponse>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "subscribe completed");
+                    }
 
-    public static RavelApiResponse getObject(String jsonString, Class mClass) {
-        try {
-            RavelApiResponse object = (RavelApiResponse)_gson.fromJson(jsonString, mClass);
-            return object;
-        } catch(Exception ex) {
-            Log.d("RavelryApi", ex.getLocalizedMessage());
-            return null;
-        }
-    }
-    private static String getBasicAuthenticationEncoding() {
-        String userPassword = ACCESS_KEY + ":" + USER_SECRET;
-        return new String(Base64.encodeBase64(userPassword.getBytes()));
-    }
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, e.getLocalizedMessage() + " - " + e.getCause());
+                    }
 
-    private static class AsyncNetworkTasks extends AsyncTask<RavelryApiRequest, Integer, Boolean>
-    {
-        protected Boolean doInBackground(RavelryApiRequest... task)
-        {
-            try {
-                URL url = new URL(BASE_URL + task[0].requestCommand + task[0].queryString);
-                OkHttpClient client = new OkHttpClient();
-                Request request = new Request.Builder().addHeader("Authorization", "Basic " + getBasicAuthenticationEncoding()).url(url).build();
-                Response response = client.newCall(request).execute();
-                _httpCallback.onSuccess(getObject(response.body().string(), RavelApiResponse.class));
-            }
-            catch(Exception e) {
-                e.printStackTrace();
-                _httpCallback.onFailure(e);
-                return false;
-            }
-            return true;
-        }
+                    @Override
+                    public void onNext(RavelApiResponse ravelApiResponse) {
+                        Log.d(TAG, "Response: " + ravelApiResponse.responses.size());
+                    }
+                });
     }
 }

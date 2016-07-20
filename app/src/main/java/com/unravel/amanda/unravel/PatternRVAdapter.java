@@ -28,9 +28,6 @@ import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
 import java.util.List;
 
-/**
- * Created by Amanda on 10/19/2015.
- */
 public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.PatternViewHolder>{
     private static final String TAG = "PatternRVAdapter";
     private List<Pattern> patterns;
@@ -38,9 +35,11 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
     private ImageLoaderConfiguration _config;
     private ImageLoader _imageLoader;
     private View.OnClickListener _viewOncClickListener;
+    RavelryApi _api;
 
     public PatternRVAdapter(List<Pattern> patterns) {
         this.patterns = patterns;
+        _api = new RavelryApi();
     }
 
     public void setOnClickListener(View.OnClickListener onClickListener)
@@ -74,79 +73,74 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
             _imageLoader = ImageLoader.getInstance();
             getImageBitmap(_currentPattern, holder.image, _currentPattern.first_photo.square_url);
         }
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                new RavelryApi(v.getContext()).processRequest(new RavelryApiRequest("", RavelryApiCalls.GET_PATTERN.replace("$", _currentPattern.id.toString())), new HttpCallback() {
-                    @Override
-                    public void onSuccess(RavelApiResponse jsonString) {
-                        final PatternFull pattern = (PatternFull)jsonString.responses.get(0);
+        holder.itemView.setOnClickListener(v -> {
+            _api.processRequest(new RavelryApiRequest("", RavelryApiCalls.GET_PATTERN.replace("$", _currentPattern.id.toString())), new HttpCallback() {
+                @Override
+                public void onSuccess(RavelApiResponse jsonString) {
+                    final PatternFull pattern = (PatternFull)jsonString.responses.get(0);
 
-                        try {
-                            ((Activity)v.getContext()).runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    View view = ((Activity) v.getContext()).getLayoutInflater().inflate(R.layout.pattern_detail_layout, null);
+                    try {
+                        ((Activity)v.getContext()).runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                View view = ((Activity) v.getContext()).getLayoutInflater().inflate(R.layout.pattern_detail_layout, null);
 
-                                    final Dialog settingsDialog = new Dialog(v.getContext());
-                                    settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-                                    ImageView imgView = (ImageView) view.findViewById(R.id.pattern_image);
-                                    imgView.setImageBitmap(_currentPattern.first_photo_bitmap);
+                                final Dialog settingsDialog = new Dialog(v.getContext());
+                                settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+                                ImageView imgView = (ImageView) view.findViewById(R.id.pattern_image);
+                                imgView.setImageBitmap(_currentPattern.first_photo_bitmap);
 
-                                    TextView textView = (TextView) view.findViewById(R.id.pattern_title);
-                                    textView.setText(pattern.name);
+                                TextView textView = (TextView) view.findViewById(R.id.pattern_title);
+                                textView.setText(pattern.name);
 
-                                    if (pattern.designer != null) {
-                                        TextView tv_author = (TextView) view.findViewById(R.id.pattern_author);
-                                        tv_author.setText(pattern.designer.name);
-                                    }
-                                    else if(pattern.pattern_author!=null)
-                                    {
-                                        TextView tv_author = (TextView) view.findViewById(R.id.pattern_author);
-                                        tv_author.setText(pattern.pattern_author.name);
-                                    }
-
-                            TextView tv_favorites = (TextView) view.findViewById(R.id.favorite_count);
-                            tv_favorites.setText("Favorites: " + pattern.favorites_count);
-
-                            TextView tv_projects = (TextView) view.findViewById(R.id.project_count);
-                            tv_projects.setText("Projects: " + pattern.projects_count);
-
-                            settingsDialog.setContentView(view);
-                            settingsDialog.show();
-
+                                if (pattern.designer != null) {
+                                    TextView tv_author = (TextView) view.findViewById(R.id.pattern_author);
+                                    tv_author.setText(pattern.designer.name);
                                 }
-                            });
-                        }
-                        catch(Exception ex)
-                        {
-                            Log.d(TAG, ex.getMessage());
-                        }
-                    }
+                                else if(pattern.pattern_author!=null)
+                                {
+                                    TextView tv_author = (TextView) view.findViewById(R.id.pattern_author);
+                                    tv_author.setText(pattern.pattern_author.name);
+                                }
 
-                    @Override
-                    public void onFailure(Throwable exception) {
+                        TextView tv_favorites = (TextView) view.findViewById(R.id.favorite_count);
+                        tv_favorites.setText("Favorites: " + pattern.favorites_count);
 
+                        TextView tv_projects = (TextView) view.findViewById(R.id.project_count);
+                        tv_projects.setText("Projects: " + pattern.projects_count);
+
+                        settingsDialog.setContentView(view);
+                        settingsDialog.show();
+
+                            }
+                        });
                     }
-                });
+                    catch(Exception ex)
+                    {
+                        Log.d(TAG, ex.getMessage());
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable exception) {
+                    Log.d(TAG, "Exception: " + exception.getMessage());
+                }
+            });
 //            _currentPattern.setSelected(!_currentPattern.isSelected());
 //            if(_currentPattern.isSelected()&&!_selectedPatterns.contains(_currentPattern))
 //                _selectedPatterns.add(_currentPattern);
 //            else if(!_currentPattern.isSelected()&&_selectedPatterns.contains(_currentPattern))
 //                _selectedPatterns.remove(_currentPattern);
 //            notifyItemChanged(position);
-            }
         });
-        holder.image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO: Speed this up load the full image when loading the thumbmail on another thread
-                View view = ((Activity)v.getContext()).getLayoutInflater().inflate(R.layout.image_expanded_layout, null);
-                final Dialog settingsDialog = new Dialog(v.getContext());
-                settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-                ImageView imgView = (ImageView)view.findViewById(R.id.fullsize_image_view);
-                String rawUrl =  _currentPattern.first_photo.medium_url.replace("_medium", "");
-                getImageBitmap(_currentPattern, imgView, rawUrl);
+        holder.image.setOnClickListener(v -> {
+            //TODO: Speed this up load the full image when loading the thumbmail on another thread
+            View view = ((Activity)v.getContext()).getLayoutInflater().inflate(R.layout.image_expanded_layout, null);
+            final Dialog settingsDialog = new Dialog(v.getContext());
+            settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+            ImageView imgView = (ImageView)view.findViewById(R.id.fullsize_image_view);
+            String rawUrl =  _currentPattern.first_photo.medium_url.replace("_medium", "");
+            getImageBitmap(_currentPattern, imgView, rawUrl);
 
 //                Button btn = (Button)view.findViewById(R.id.fullsize_close_image_view);
 //                btn.setOnClickListener(new View.OnClickListener() {
@@ -155,9 +149,8 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
 //                        settingsDialog.dismiss();
 //                    }
 //                });
-                settingsDialog.setContentView(view);
-                settingsDialog.show();
-            }
+            settingsDialog.setContentView(view);
+            settingsDialog.show();
         });
         if(_currentPattern.isSelected())
             holder.itemView.setBackgroundColor(Color.LTGRAY);

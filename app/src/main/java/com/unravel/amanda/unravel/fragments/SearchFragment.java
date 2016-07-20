@@ -17,6 +17,7 @@ import android.widget.EditText;
 
 import com.unravel.amanda.unravel.PatternRVAdapter;
 import com.unravel.amanda.unravel.R;
+import com.unravel.amanda.unravel.RavelApplication;
 import com.unravel.amanda.unravel.SearchRecyclerViewItemDecorator;
 import com.unravel.amanda.unravel.ravelryapi.HttpCallback;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
@@ -27,6 +28,8 @@ import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -36,16 +39,19 @@ public class SearchFragment extends Fragment {
     private boolean isAdvancedSearch = false;
     private PatternRVAdapter _patternListAdapter;
     private BasicSearchFragment _baseSearchFragment;
-    private RavelryApi _api;
     private MenuItem _searchAdvanced;
     private MenuItem _searchBasic;
     private RavelApiResponse searchResponse;
 
+    @Inject
+    RavelryApi _api;
+
     @BindView(R.id.rv) RecyclerView _searchResults;
-    @BindView(R.id.searchQuery) private EditText _searchQuery;
+    @BindView(R.id.searchQuery) EditText _searchQuery;
 
     private SearchResultFragment _resultFragment;
     private AdvancedSearchFragment _advancedSearchFragment;
+    private View fragmentView;
 
     public static SearchFragment newInstance() {
         return new SearchFragment();
@@ -56,6 +62,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        RavelApplication.getComponent().inject(this);
         setHasOptionsMenu(true);
     }
 
@@ -80,21 +87,6 @@ public class SearchFragment extends Fragment {
         return false;
     }
 
-    @Override
-    public void onViewCreated (View view, Bundle savedInstanceState){
-        super.onViewCreated(view, savedInstanceState);
-        ButterKnife.bind(getActivity(), view);
-        _api = new RavelryApi(getActivity());
-        _baseSearchFragment = (BasicSearchFragment) getActivity().getFragmentManager().findFragmentById(R.id.searchDetailsFragment);
-        _resultFragment = (SearchResultFragment) getActivity().getFragmentManager().findFragmentById(R.id.search_content);
-
-        if(_searchResults !=null) {
-            _searchResults.setHasFixedSize(true);
-            _searchResults.addItemDecoration(new SearchRecyclerViewItemDecorator(5));
-            _searchResults.setLayoutManager(new LinearLayoutManager(getActivity()));
-            _searchResults.setAdapter(_patternListAdapter);
-        }
-    }
     @OnClick(R.id.searchButton)
     public void performSearch() {
         InputMethodManager inputManager = (InputMethodManager)
@@ -104,7 +96,7 @@ public class SearchFragment extends Fragment {
         if (isAdvancedSearch) {
             getActivity().getFragmentManager().beginTransaction().hide(_advancedSearchFragment).commit();
         }
-        new RavelryApi(getActivity()).processRequest(new RavelryApiRequest(_searchQuery.getText().toString(), RavelryApiCalls.PATTERN_SEARCH), new HttpCallback() {
+        _api.processRequest(new RavelryApiRequest(_searchQuery.getText().toString(), RavelryApiCalls.PATTERN_SEARCH), new HttpCallback() {
             @Override
             public void onSuccess(RavelApiResponse response) {
                 setSearchResponse(response);
@@ -125,8 +117,18 @@ public class SearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+        fragmentView = inflater.inflate(R.layout.fragment_search, container, false);
+        ButterKnife.bind(this, fragmentView);
+        _baseSearchFragment = (BasicSearchFragment) getActivity().getFragmentManager().findFragmentById(R.id.searchDetailsFragment);
+        _resultFragment = (SearchResultFragment) getActivity().getFragmentManager().findFragmentById(R.id.search_content);
+
+        if(_searchResults != null) {
+            _searchResults.setHasFixedSize(true);
+            _searchResults.addItemDecoration(new SearchRecyclerViewItemDecorator(5));
+            _searchResults.setLayoutManager(new LinearLayoutManager(getActivity()));
+            _searchResults.setAdapter(_patternListAdapter);
+        }
+        return fragmentView;
     }
 
     public void setSearchResponse(RavelApiResponse searchResponse) {

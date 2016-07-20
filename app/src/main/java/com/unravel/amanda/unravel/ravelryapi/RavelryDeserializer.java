@@ -21,9 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by Amanda on 10/23/2015.
- */
 public class RavelryDeserializer implements JsonDeserializer<RavelApiResponse> {
     private static final String TAG = "Deserializer";
     Gson _gson;
@@ -55,7 +52,6 @@ public class RavelryDeserializer implements JsonDeserializer<RavelApiResponse> {
             return new RavelApiResponse(page, responses);
         } catch(Exception ex){
             Log.d(TAG, Log.getStackTraceString(ex));
-
         }
         return null;
     }
