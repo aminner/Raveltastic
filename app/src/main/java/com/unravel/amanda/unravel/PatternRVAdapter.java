@@ -28,18 +28,22 @@ import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.PatternViewHolder>{
     private static final String TAG = "PatternRVAdapter";
+    private final Activity activity;
     private List<Pattern> patterns;
     private DisplayImageOptions _options;
     private ImageLoaderConfiguration _config;
     private ImageLoader _imageLoader;
     private View.OnClickListener _viewOncClickListener;
-    RavelryApi _api;
+    @Inject RavelryApi _api;
 
-    public PatternRVAdapter(List<Pattern> patterns) {
+    public PatternRVAdapter(List<Pattern> patterns, Activity activity) {
+        RavelApplication.ravelApplication.getComponent().inject(this);
         this.patterns = patterns;
-        _api = new RavelryApi();
+        this.activity = activity;
     }
 
     public void setOnClickListener(View.OnClickListener onClickListener)
@@ -64,9 +68,9 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
         holder.title.setText(_currentPattern.name);
         holder.patternCost.setText(_currentPattern.free?"FREE":"PAID");
         //Load Iamge
-        if(_currentPattern.first_photo_bitmap!=null)
+        if(_currentPattern.first_photo_bitmap!=null) {
             holder.image.setImageBitmap(_currentPattern.first_photo_bitmap);
-        else if(_currentPattern.first_photo != null){
+        } else if(_currentPattern.first_photo != null){
             _config = new ImageLoaderConfiguration.Builder(holder.cardView.getContext()).build();
             _options  = new DisplayImageOptions.Builder().build();
             ImageLoader.getInstance().init(_config);
@@ -74,15 +78,12 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
             getImageBitmap(_currentPattern, holder.image, _currentPattern.first_photo.square_url);
         }
         holder.itemView.setOnClickListener(v -> {
-            _api.processRequest(new RavelryApiRequest("", RavelryApiCalls.GET_PATTERN.replace("$", _currentPattern.id.toString())), new HttpCallback() {
+            _api.processRequest(new RavelryApiRequest(new String[]{_currentPattern.id.toString()}, RavelryApiCalls.GET_PATTERN), new HttpCallback() {
                 @Override
                 public void onSuccess(RavelApiResponse jsonString) {
-                    final PatternFull pattern = (PatternFull)jsonString.responses.get(0);
-
-                    try {
-                        ((Activity)v.getContext()).runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                     final PatternFull pattern = (PatternFull)jsonString.responses.get(0);
+                        try {
+                            ((Activity)v.getContext()).runOnUiThread(() -> {
                                 View view = ((Activity) v.getContext()).getLayoutInflater().inflate(R.layout.pattern_detail_layout, null);
 
                                 final Dialog settingsDialog = new Dialog(v.getContext());
@@ -111,12 +112,8 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
 
                         settingsDialog.setContentView(view);
                         settingsDialog.show();
-
-                            }
-                        });
-                    }
-                    catch(Exception ex)
-                    {
+                            });
+                    } catch(Exception ex) {
                         Log.d(TAG, ex.getMessage());
                     }
                 }
@@ -135,7 +132,7 @@ public class PatternRVAdapter extends RecyclerView.Adapter<PatternRVAdapter.Patt
         });
         holder.image.setOnClickListener(v -> {
             //TODO: Speed this up load the full image when loading the thumbmail on another thread
-            View view = ((Activity)v.getContext()).getLayoutInflater().inflate(R.layout.image_expanded_layout, null);
+            View view =activity.getLayoutInflater().inflate(R.layout.image_expanded_layout, null);
             final Dialog settingsDialog = new Dialog(v.getContext());
             settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
             ImageView imgView = (ImageView)view.findViewById(R.id.fullsize_image_view);

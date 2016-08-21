@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="1">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -13,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="Large Text"
             android:id="@+id/pattern_title"
             android:layout_toStartOf="@+id/pattern_image"
@@ -47,45 +48,37 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
+        android:layout_weight="0.07"
         android:layout_height="wrap_content">
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/project_details_craft"
-            android:layout_row="0"
-            android:layout_column="0"
             android:background="@drawable/knit_needles"
             android:layout_gravity="center"
-            android:layout_columnWeight="1"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="10dp" />
+            android:layout_above="@+id/project_count"
+            android:layout_toStartOf="@+id/project_details_favorited"
+            android:layout_alignParentStart="false" />
 
         <ImageButton
-            android:layout_width="43dp"
+            android:layout_width="40dp"
             android:layout_height="43dp"
             android:id="@+id/project_details_projects"
-            android:layout_row="0"
-            android:layout_column="1"
             android:background="@drawable/ic_folder_open_black_24dp"
             android:layout_gravity="center"
-            android:layout_columnWeight="1"
             android:layout_marginLeft="25dp"
-            android:layout_alignTop="@+id/project_details_craft"
-            android:layout_alignParentEnd="true"
-            android:layout_marginRight="25dp" />
+            android:layout_marginRight="25dp"
+            android:layout_above="@+id/textView2"
+            android:layout_toEndOf="@+id/favorite_count"
+            android:layout_alignParentStart="false" />
 
         <ImageButton
-            android:layout_width="54dp"
-            android:layout_height="54dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/project_details_favorited"
-            android:layout_row="0"
-            android:layout_column="2"
             android:background="@drawable/ic_heart"
             android:layout_gravity="center"
-            android:layout_columnWeight="1"
             android:layout_marginLeft="25dp"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true" />
@@ -96,8 +89,8 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Small Text"
             android:id="@+id/project_count"
-            android:layout_below="@+id/project_details_craft"
-            android:layout_alignParentStart="true" />
+            android:layout_alignTop="@+id/favorite_count"
+            android:layout_toStartOf="@+id/project_details_favorited" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -105,8 +98,8 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Small Text"
             android:id="@+id/favorite_count"
-            android:layout_alignTop="@+id/project_count"
-            android:layout_alignStart="@+id/project_details_favorited" />
+            android:layout_below="@+id/project_details_favorited"
+            android:layout_centerHorizontal="true" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -114,8 +107,9 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Small Text"
             android:id="@+id/textView2"
-            android:layout_below="@+id/project_details_craft"
-            android:layout_alignEnd="@+id/project_details_projects" />
+            android:layout_alignTop="@+id/favorite_count"
+            android:layout_alignStart="@+id/project_details_projects"
+            android:layout_alignBottom="@+id/favorite_count" />
     </RelativeLayout>
 
     <ScrollView

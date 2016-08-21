@@ -62,7 +62,7 @@ public class SearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        RavelApplication.getComponent().inject(this);
+        RavelApplication.ravelApplication.getComponent().inject(this);
         setHasOptionsMenu(true);
     }
 
@@ -96,7 +96,7 @@ public class SearchFragment extends Fragment {
         if (isAdvancedSearch) {
             getActivity().getFragmentManager().beginTransaction().hide(_advancedSearchFragment).commit();
         }
-        _api.processRequest(new RavelryApiRequest(_searchQuery.getText().toString(), RavelryApiCalls.PATTERN_SEARCH), new HttpCallback() {
+        _api.processRequest(new RavelryApiRequest(new String[]{_searchQuery.getText().toString()}, RavelryApiCalls.PATTERN_SEARCH), new HttpCallback() {
             @Override
             public void onSuccess(RavelApiResponse response) {
                 setSearchResponse(response);
@@ -104,7 +104,7 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onFailure(Throwable exception) {
-                Log.d(TAG, "Error: " + exception.getMessage());
+                Log.e(TAG, "Error: " + exception.getMessage(), exception);
             }
         });
     }
@@ -133,18 +133,15 @@ public class SearchFragment extends Fragment {
 
     public void setSearchResponse(RavelApiResponse searchResponse) {
         this.searchResponse = searchResponse;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (_patternListAdapter == null) {
-                    _patternListAdapter = new PatternRVAdapter((List<Pattern>) (Object) searchResponse.responses);
-                    _searchResults.setAdapter(_patternListAdapter);
+        getActivity().runOnUiThread(() -> {
+            if (_patternListAdapter == null) {
+                _patternListAdapter = new PatternRVAdapter((List<Pattern>) (Object) searchResponse.responses, getActivity());
+                _searchResults.setAdapter(_patternListAdapter);
 
-                } else {
-                    _patternListAdapter.setItems((List<Pattern>) (Object) searchResponse.responses);
-                }
-                _patternListAdapter.notifyDataSetChanged();
+            } else {
+                _patternListAdapter.setItems((List<Pattern>) (Object) searchResponse.responses);
             }
+            _patternListAdapter.notifyDataSetChanged();
         });
     }
 }

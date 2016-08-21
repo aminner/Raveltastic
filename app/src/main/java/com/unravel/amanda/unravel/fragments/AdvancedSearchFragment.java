@@ -69,7 +69,7 @@ public class AdvancedSearchFragment extends Fragment {
     }
 
     private void setColorOptions() {
-        _ravelryApi.processRequest(new RavelryApiRequest("", RavelryApiCalls.COLOR_FAMILIES), new HttpCallback() {
+        _ravelryApi.processRequest(new RavelryApiRequest(new String[]{""}, RavelryApiCalls.COLOR_FAMILIES), new HttpCallback() {
             @Override
             public void onSuccess(final RavelApiResponse jsonString) {
                 getActivity().runOnUiThread(new Runnable() {

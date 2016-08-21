@@ -38,9 +38,10 @@ public class RavelAppModule
     static final String BASE_URL = "https://api.ravelry.com/";
     static final String API_PROP_FILE = "api.properties";
 
-    Application mApplication;
+    RavelApplication mApplication;
 
-    public RavelAppModule() {
+    public RavelAppModule(RavelApplication ravelApplication) {
+        mApplication = ravelApplication;
     }
 
     @Provides
@@ -60,7 +61,6 @@ public class RavelAppModule
                 .client(okHttpClient)
                 .build();
     }
-
 
     @Provides
     @Singleton

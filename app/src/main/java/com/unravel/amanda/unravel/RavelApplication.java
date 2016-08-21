@@ -4,23 +4,25 @@ import android.app.Application;
 
 
 public class RavelApplication extends Application {
-    private static ApplicationComponent mComponent;
+    private ApplicationComponent mComponent;
+    public static RavelApplication ravelApplication;
 
     @Override
     public void onCreate() {
         super.onCreate();
         initComponent();
+        ravelApplication = this;
     }
 
-    private static void initComponent()
+    private void initComponent()
     {
         mComponent = DaggerApplicationComponent.builder()
-                .ravelAppModule(new RavelAppModule())
+                .ravelAppModule(new RavelAppModule(this))
                 .build();
     }
 
 
-    public static ApplicationComponent getComponent() {
+    public ApplicationComponent getComponent() {
         if(mComponent == null)
         {
             initComponent();

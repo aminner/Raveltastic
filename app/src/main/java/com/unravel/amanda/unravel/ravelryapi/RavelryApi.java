@@ -17,29 +17,76 @@ public class RavelryApi  {
     @Inject RavelApiService _apiService;
 
     public RavelryApi()   {
-        RavelApplication.getComponent().inject(this);
+        RavelApplication.ravelApplication.getComponent().inject(this);
     }
 
     public void processRequest(RavelryApiRequest request, HttpCallback callback) {
-        _apiService.getPatterns(request.queryString)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(callback::onFailure)
-                .subscribe(new Subscriber<RavelApiResponse>() {
-                    @Override
-                    public void onCompleted() {
-                        Log.d(TAG, "subscribe completed");
-                    }
+        switch(request.requestCommand) {
+            case PATTERN_SEARCH:
+                _apiService.findPatterns(request.requestParameters.get(0))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnError(callback::onFailure)
+                        .subscribe(new Subscriber<RavelApiResponse>() {
+                            @Override
+                            public void onCompleted() {
+                                Log.d(TAG, "subscribe completed");
+                            }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.d(TAG, e.getLocalizedMessage() + " - " + e.getCause());
-                    }
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, e.getLocalizedMessage() + " - " + e.getCause(), e);
+                            }
 
-                    @Override
-                    public void onNext(RavelApiResponse ravelApiResponse) {
-                        Log.d(TAG, "Response: " + ravelApiResponse.responses.size());
-                    }
-                });
+                            @Override
+                            public void onNext(RavelApiResponse ravelApiResponse) {
+                                Log.d(TAG, "Response: " + ravelApiResponse.responses.size());
+                                callback.onSuccess(ravelApiResponse);
+                            }
+                        });
+                break;
+            case GET_PATTERN:
+                _apiService.getPattern(request.requestParameters.get(0))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnError(callback::onFailure)
+                        .subscribe(new Subscriber<RavelApiResponse>() {
+                            @Override
+                            public void onCompleted() {
+                                Log.d(TAG, "subscribe completed");
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, e.getLocalizedMessage() + " - " + e.getCause(), e);
+                            }
+
+                            @Override
+                            public void onNext(RavelApiResponse ravelApiResponse) {
+                                Log.d(TAG, "Response: " + ravelApiResponse.responses.size());
+                                callback.onSuccess(ravelApiResponse);
+                            }
+                        });
+                break;
+            case LOGIN:
+                _apiService.login(request.requestParameters.get(0), request.requestParameters.get(1)) .observeOn(AndroidSchedulers.mainThread())
+                        .doOnError(callback::onFailure)
+                        .subscribe(new Subscriber<RavelApiResponse>() {
+                            @Override
+                            public void onCompleted() {
+                                Log.d(TAG, "subscribe completed");
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, e.getLocalizedMessage() + " - " + e.getCause(), e);
+                            }
+
+                            @Override
+                            public void onNext(RavelApiResponse ravelApiResponse) {
+                                Log.d(TAG, "Response: " + ravelApiResponse.responses.size());
+                                callback.onSuccess(ravelApiResponse);
+                            }
+                        });;
+        }
     }
 }

@@ -1,15 +1,27 @@
 package com.unravel.amanda.unravel.ravelryapi;
 
-/**
- * Created by Amanda on 10/23/2015.
- */
-public class RavelryApiRequest {
-    public final String queryString;
-    public final String requestCommand;
+import java.util.ArrayList;
 
-    public RavelryApiRequest(String queryString, String requestCommand)
+public class RavelryApiRequest {
+    public ArrayList<String> requestParameters;
+    public final RavelryApiCalls requestCommand;
+
+    public RavelryApiRequest(String[] parameters, RavelryApiCalls requestCommand)
     {
-        this.queryString = queryString;
+        this.requestParameters = new ArrayList<>();
+        for(String param:parameters)
+        {
+            requestParameters.add(param);
+        }
         this.requestCommand = requestCommand;
+    }
+
+    public void addParameter(String parameter)
+    {
+        if(requestParameters == null)
+        {
+            requestParameters = new ArrayList<String>();
+        }
+        requestParameters.add(parameter);
     }
 }

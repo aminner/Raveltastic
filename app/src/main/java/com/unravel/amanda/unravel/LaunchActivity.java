@@ -1,6 +1,7 @@
 package com.unravel.amanda.unravel;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -10,9 +11,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.unravel.amanda.unravel.fragments.LoginFragment;
 import com.unravel.amanda.unravel.fragments.SearchFragment;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 
@@ -22,7 +25,7 @@ public class LaunchActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
     @Inject  RavelryApi _api;
     private Activity _activity;
-    private SearchFragment _searchFragment;
+    private String TAG ="LaunchActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,15 +85,26 @@ public class LaunchActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_pattern) {
-            _searchFragment = SearchFragment.newInstance();
-            FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content, _searchFragment).commit();
+        if(item == null)
+        {
+            Log.d(TAG, "onNavigationItemSelected - item is null");
+            return false;
         }
-
+        // Handle navigation view item clicks here.
+        Fragment newFragment = null;
+        int id = item.getItemId();
+        switch(id) {
+            case R.id.nav_pattern:
+                newFragment = SearchFragment.newInstance();
+                break;
+            case R.id.nav_login:
+                newFragment = LoginFragment.newInstance();
+                break;
+        }
+        if(newFragment!=null) {
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.content, newFragment).commit();
+        }
         // Highlight the selected item, update the title, and close the drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

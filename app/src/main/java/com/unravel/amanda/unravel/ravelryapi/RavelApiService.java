@@ -3,10 +3,17 @@ package com.unravel.amanda.unravel.ravelryapi;
 import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 import rx.Observable;
 
 public interface RavelApiService {
     @GET("patterns/search.json")
-    Observable<RavelApiResponse> getPatterns(@Query("query") String patternId);
+    Observable<RavelApiResponse> findPatterns(@Query("query") String patternId);
+
+    @GET("patterns/{patternId}.json")
+    Observable<RavelApiResponse> getPattern(@Path("patternId") String patternId);
+
+    @GET("")
+    Observable<RavelApiResponse> login(String s, String s1);
 }

@@ -5,9 +5,6 @@ import com.unravel.amanda.unravel.ravelryapi.models.Paginator;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * Created by Amanda on 8/23/2015.
- */
 public class RavelApiResponse implements Serializable{
     public Paginator paginator;
     public List<Object> responses;

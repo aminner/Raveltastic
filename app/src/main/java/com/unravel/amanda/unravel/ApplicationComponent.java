@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.google.gson.Gson;
 import com.unravel.amanda.unravel.fragments.AdvancedSearchFragment;
+import com.unravel.amanda.unravel.fragments.LoginFragment;
 import com.unravel.amanda.unravel.fragments.SearchFragment;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 
@@ -25,4 +26,7 @@ public interface ApplicationComponent {
     Gson gson();
     OkHttpClient okHttpClient();
     Retrofit retrofit();
+
+    void inject(LoginFragment loginFragment);
+
 }
