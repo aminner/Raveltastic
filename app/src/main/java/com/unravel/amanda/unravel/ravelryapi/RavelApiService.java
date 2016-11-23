@@ -13,7 +13,4 @@ public interface RavelApiService {
 
     @GET("patterns/{patternId}.json")
     Observable<RavelApiResponse> getPattern(@Path("patternId") String patternId);
-
-    @GET("")
-    Observable<RavelApiResponse> login(String s, String s1);
 }

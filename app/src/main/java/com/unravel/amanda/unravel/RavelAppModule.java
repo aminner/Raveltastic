@@ -9,12 +9,6 @@ import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 import com.unravel.amanda.unravel.ravelryapi.RavelryDeserializer;
 import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
 
-import org.apache.commons.codec.binary.Base64;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -31,11 +25,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Module
 public class RavelAppModule
 {
-    static String ACCESS_KEY;
-    static String ACCESS_SECRET;
-    static String USER_ID;
-    static String USER_SECRET;
     static final String BASE_URL = "https://api.ravelry.com/";
+    static final String AUTH_BASE_URL = "http://www.ravelry.com/";
     static final String API_PROP_FILE = "api.properties";
 
     RavelApplication mApplication;
@@ -68,15 +59,37 @@ public class RavelAppModule
     {
         return retrofit.create(RavelApiService.class);
     }
+
     @Provides
     @Singleton
-    OkHttpClient providesOkHttpClient()
+    RavelryApiAuthorizationService providesRavelryApiAuthorizationService(Gson gson, OkHttpClient okHttpClient)
+    {
+        Retrofit authRetrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .client(okHttpClient)
+                .build();
+        return authRetrofit.create(RavelryApiAuthorizationService.class);
+    }
+
+    @Provides
+    @Singleton
+    RavelryApiKeys provideRavelApiKeys()
+    {
+        RavelryApiKeys keys = new RavelryApiKeys(mApplication, API_PROP_FILE);
+        return keys;
+    }
+
+    @Provides
+    @Singleton
+    OkHttpClient providesOkHttpClient(RavelryApiKeys keys)
     {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(chain -> {
             Request original = chain.request();
             Request.Builder requestBuilder = original.newBuilder()
-                    .header("Authorization", "Basic " + getBasicAuthenticationEncoding())
+                    .header("Authorization", "Basic " + keys.getBasicAuthenticationEncoding())
                     .header("Accept", "application/json")
                     .method(original.method(), original.body());
 
@@ -96,34 +109,9 @@ public class RavelAppModule
 
     @Provides
     @Singleton
-    Gson providesGson()
-    {
+    Gson providesGson() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(RavelApiResponse.class, new RavelryDeserializer());
         return gsonBuilder.create();
     }
-
-    private String getBasicAuthenticationEncoding() {
-        if(ACCESS_KEY == null) {
-            setApiKeys();
-        }
-        String userPassword = ACCESS_KEY + ":" + USER_SECRET;
-        return new String(Base64.encodeBase64(userPassword.getBytes()));
-    }
-
-    private void setApiKeys() {
-        Properties prop = new Properties();
-        try {
-            InputStream input = mApplication.getBaseContext().getAssets().open(API_PROP_FILE);
-            if(input != null)
-                prop.load(input);
-            ACCESS_KEY = prop.getProperty("ACCESS_KEY");
-            ACCESS_SECRET = prop.getProperty("ACCESS_SECRET");
-            USER_ID = prop.getProperty("USER_ID");
-            USER_SECRET = prop.getProperty("USER_SECRET");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

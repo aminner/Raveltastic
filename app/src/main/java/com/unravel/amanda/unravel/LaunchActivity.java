@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.github.scribejava.core.model.OAuth1AccessToken;
 import com.unravel.amanda.unravel.fragments.LoginFragment;
 import com.unravel.amanda.unravel.fragments.SearchFragment;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
@@ -22,7 +23,7 @@ import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 import javax.inject.Inject;
 
 public class LaunchActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+        implements NavigationView.OnNavigationItemSelectedListener, LoginFragment.LoginCallback{
     @Inject  RavelryApi _api;
     private Activity _activity;
     private String TAG ="LaunchActivity";
@@ -103,11 +104,16 @@ public class LaunchActivity extends AppCompatActivity
         }
         if(newFragment!=null) {
             FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content, newFragment).commit();
+            fragmentManager.beginTransaction().add(R.id.content, newFragment).commit();
         }
         // Highlight the selected item, update the title, and close the drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void successfullyLoggedIn(OAuth1AccessToken accessToken) {
+        _api.setOAuthToken(accessToken);
     }
 }
