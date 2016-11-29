@@ -28,5 +28,5 @@ public interface ApplicationComponent {
     Retrofit retrofit();
 
     void inject(LoginFragment loginFragment);
-
 }
+

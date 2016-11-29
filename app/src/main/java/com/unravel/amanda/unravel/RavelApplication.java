@@ -2,9 +2,12 @@ package com.unravel.amanda.unravel;
 
 import android.app.Application;
 
+import com.github.scribejava.core.model.OAuth1AccessToken;
+
 
 public class RavelApplication extends Application {
-    private ApplicationComponent mComponent;
+    private ApplicationComponent applicationComponent;
+    private OAuthComponent oAuthComponent;
     public static RavelApplication ravelApplication;
 
     @Override
@@ -16,17 +19,23 @@ public class RavelApplication extends Application {
 
     private void initComponent()
     {
-        mComponent = DaggerApplicationComponent.builder()
+        applicationComponent = DaggerApplicationComponent.builder()
                 .ravelAppModule(new RavelAppModule(this))
                 .build();
     }
 
+    private void initOAuthComponent(OAuth1AccessToken accessToken) {
+        oAuthComponent = DaggerOAuthComponent.builder()
+                .ravelOAuthModule(new RavelOAuthModule(accessToken))
+        .build();
+    }
+
 
     public ApplicationComponent getComponent() {
-        if(mComponent == null)
+        if(applicationComponent == null)
         {
             initComponent();
         }
-        return mComponent;
+        return applicationComponent;
     }
 }

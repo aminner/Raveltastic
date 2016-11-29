@@ -13,8 +13,6 @@ import com.unravel.amanda.unravel.RavelApplication;
 import com.unravel.amanda.unravel.RavelryWebViewClient;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 
-import java.io.IOException;
-
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -58,7 +56,7 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
-    private void initializeWebView() throws IOException {
+    private void initializeWebView() throws Exception {
         WebSettings webSettings = ravelryWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         ravelryWebView.setWebViewClient(new RavelryWebViewClient(_api));

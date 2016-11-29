@@ -7,7 +7,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 import rx.Observable;
 
-public interface RavelApiService {
+public interface AuthenticatedRavelApiService {
     @GET("patterns/search.json")
     Observable<RavelApiResponse> findPatterns(@Query("query") String patternId);
 

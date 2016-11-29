@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.github.scribejava.core.model.OAuth1AccessToken;
 import com.unravel.amanda.unravel.fragments.LoginFragment;
 import com.unravel.amanda.unravel.fragments.SearchFragment;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
@@ -23,7 +22,7 @@ import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 import javax.inject.Inject;
 
 public class LaunchActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, LoginFragment.LoginCallback{
+        implements NavigationView.OnNavigationItemSelectedListener{
     @Inject  RavelryApi _api;
     private Activity _activity;
     private String TAG ="LaunchActivity";
@@ -112,8 +111,8 @@ public class LaunchActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void successfullyLoggedIn(OAuth1AccessToken accessToken) {
-        _api.setOAuthToken(accessToken);
-    }
+//    @Override
+//    public void successfullyLoggedIn(OAuth1AccessToken accessToken) {
+//        _api.setOAuthToken(accessToken);
+//    }
 }

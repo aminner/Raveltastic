@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.unravel.amanda.unravel.ravelryapi.RavelApiService;
+import com.unravel.amanda.unravel.ravelryapi.UnauthenticatedRavelApiService;
 import com.unravel.amanda.unravel.ravelryapi.RavelryApi;
 import com.unravel.amanda.unravel.ravelryapi.RavelryDeserializer;
 import com.unravel.amanda.unravel.ravelryapi.response.RavelApiResponse;
@@ -19,9 +19,6 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * Created by Amanda on 7/13/2016.
- */
 @Module
 public class RavelAppModule
 {
@@ -55,22 +52,9 @@ public class RavelAppModule
 
     @Provides
     @Singleton
-    RavelApiService providesRavelApiService(Retrofit retrofit)
+    UnauthenticatedRavelApiService providesRavelApiService(Retrofit retrofit)
     {
-        return retrofit.create(RavelApiService.class);
-    }
-
-    @Provides
-    @Singleton
-    RavelryApiAuthorizationService providesRavelryApiAuthorizationService(Gson gson, OkHttpClient okHttpClient)
-    {
-        Retrofit authRetrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .client(okHttpClient)
-                .build();
-        return authRetrofit.create(RavelryApiAuthorizationService.class);
+        return retrofit.create(UnauthenticatedRavelApiService.class);
     }
 
     @Provides
@@ -83,8 +67,7 @@ public class RavelAppModule
 
     @Provides
     @Singleton
-    OkHttpClient providesOkHttpClient(RavelryApiKeys keys)
-    {
+    OkHttpClient providesOkHttpClient(RavelryApiKeys keys) {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(chain -> {
             Request original = chain.request();

@@ -25,7 +25,8 @@ import rx.schedulers.Schedulers;
 public class RavelryApi implements RaverlyWebViewCallback {
     private static final String TAG = "RavelryApi";
 
-    @Inject RavelApiService _apiService;
+    @Inject
+    UnauthenticatedRavelApiService _apiService;
     @Inject RavelryApiKeys _keys;
     private OAuth1AccessToken OAuthToken;
 
@@ -92,6 +93,8 @@ public class RavelryApi implements RaverlyWebViewCallback {
         if(this.OAuthToken == null) {
             return; //TODO: throw error do something?
         }
+
+
     }
 
     public String getOAuthTokenAuthorizationUrl() throws Exception {
@@ -109,7 +112,7 @@ public class RavelryApi implements RaverlyWebViewCallback {
             return service.getAuthorizationUrl(requestToken);
         }
     }
-    public void setOAuthToken(OAuth1AccessToken OAuthToken) {
+    private void setOAuthToken(OAuth1AccessToken OAuthToken) {
         this.OAuthToken = OAuthToken;
         SharedPreferences preferences = RavelApplication.ravelApplication.getSharedPreferences("RAVEL_PREFS", Context.MODE_PRIVATE);
         preferences.edit().putString(RavelApiConstants.OAUTH_TOKEN, OAuthToken.getToken()).apply();
@@ -122,5 +125,6 @@ public class RavelryApi implements RaverlyWebViewCallback {
             return; //TODO: Throw error handle
         }
         accessToken = service.getAccessToken(requestToken, verifier);
+        setOAuthToken(accessToken);
     }
 }
